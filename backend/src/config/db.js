@@ -1,12 +1,18 @@
-// src/config/db.js
-import mongoose from "mongoose";
+import mongoose from "mongoose"
+import { env } from "./env.js"
 
-export async function connectDB() {
+export const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected successfully ✅");
-  } catch (err) {
-    console.error("MongoDB connection error ❌", err);
-    process.exit(1); // stop backend if DB fails
+    if (!env.MONGO_URI) {
+      throw new Error("MONGO_URI not defined")
+    }
+
+    const conn = await mongoose.connect(env.MONGO_URI)
+
+    console.log(`✅ MongoDB Atlas Connected: ${conn.connection.host}`)
+  } catch (error) {
+    console.error("❌ MongoDB Atlas Connection Failed")
+    console.error(error.message)
+    process.exit(1)
   }
 }
