@@ -1,13 +1,14 @@
 import Navbar from "../components/Navbar"
+import ResumePreview from "../components/ResumePreview"
 
 function Landing() {
   return (
-    <div className="w-full bg-white text-gray-900">
+    <div className="w-full bg-slate-50 text-slate-900">
 
       <Navbar />
 
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center pt-20">
+      <section className="min-h-screen flex items-center pt-20 bg-linear-to-br from-slate-50 via-white to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -43,14 +44,11 @@ function Landing() {
               </div>
             </div>
 
+            
             {/* Right Side */}
-            <div className="flex-1 w-full max-w-md lg:max-w-lg">
-              <div className="w-full h-64 sm:h-80 lg:h-96 bg-gray-100 rounded-2xl shadow-lg flex items-center justify-center">
-                <span className="text-gray-400">
-                  Resume Preview Illustration
-                </span>
-              </div>
-            </div>
+<div className="flex-1 w-full max-w-md lg:max-w-lg">
+  <ResumePreview />
+</div>
 
           </div>
         </div>

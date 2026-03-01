@@ -1,13 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    darkMode: "class", 
+  darkMode: "class",
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: "class",
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+       heading: ['Clash Display', 'sans-serif'],
+    body: ['Inter', 'sans-serif'],
+
+      },
+    },
   },
   plugins: [],
 }
