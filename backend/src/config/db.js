@@ -1,18 +1,20 @@
-import mongoose from "mongoose"
-import { env } from "./env.js"
+// ./src/config/db.js
+import mongoose from "mongoose";
+import dns from "dns";
+import { env } from "./env.js";
+
+// 🔥 Force Google DNS instead of ISP DNS
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 export const connectDB = async () => {
   try {
-    if (!env.MONGO_URI) {
-      throw new Error("MONGO_URI not defined")
-    }
+    await mongoose.connect(env.MONGO_URI, {
+      family: 4
+    });
 
-    const conn = await mongoose.connect(env.MONGO_URI)
-
-    console.log(`✅ MongoDB Atlas Connected: ${conn.connection.host}`)
-  } catch (error) {
-    console.error("❌ MongoDB Atlas Connection Failed")
-    console.error(error.message)
-    process.exit(1)
+    console.log("✅ MongoDB Connected");
+  } catch (err) {
+    console.error("❌ MongoDB Connection Failed:", err);
+    process.exit(1);
   }
-}
+};

@@ -2,15 +2,20 @@ import jwt from "jsonwebtoken"
 import User from "../models/user.model.js"
 import { env } from "../config/env.js"
 
-const generateToken = (id) => {
+export const generateToken = (id) => {
   return jwt.sign({ id }, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN
   })
 }
 
+// ================= REGISTER =================
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" })
+    }
 
     const existingUser = await User.findOne({ email })
     if (existingUser) {
@@ -25,14 +30,20 @@ export const register = async (req, res, next) => {
       email: user.email,
       token: generateToken(user._id)
     })
+
   } catch (error) {
     next(error)
   }
 }
 
+// ================= LOGIN =================
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" })
+    }
 
     const user = await User.findOne({ email })
     if (!user) {
@@ -50,6 +61,7 @@ export const login = async (req, res, next) => {
       email: user.email,
       token: generateToken(user._id)
     })
+
   } catch (error) {
     next(error)
   }

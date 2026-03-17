@@ -1,8 +1,8 @@
 import express from "express";
-import { rewriteResume } from "../controllers/rewrite.controller.js";
+import { getLineSuggestions } from "../controllers/rewrite.controller.js";
 
 const router = express.Router();
 
-router.post("/", rewriteResume);
+router.post("/suggestions", getLineSuggestions);
 
 export default router;

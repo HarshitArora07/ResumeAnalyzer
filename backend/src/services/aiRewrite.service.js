@@ -1,58 +1,79 @@
-import Groq from "groq-sdk";
-import { env } from "../config/env.js";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
 
-const groq = new Groq({
-  apiKey: env.GROQ_API_KEY,
-});
+dotenv.config();
 
-export const generateRewrite = async (resumeText, jobDescription = null) => {
+export const generateLineSuggestions = async (resumeText) => {
   try {
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: `
-You are a senior executive resume writer and ATS optimization specialist.
+    // ✅ Step 1: Split resume into lines
+    const lines = resumeText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
 
-Rewrite the resume to be:
-- Clear
-- Professional
-- Impact-driven
+    // ✅ Step 2: Process each line separately
+    const results = await Promise.all(
+      lines.map(async (line) => {
+        try {
+          const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: "llama-3.1-8b-instant",
+                temperature: 0.5,
+                messages: [
+                  {
+                    role: "system",
+                    content: `
+You are an expert resume writer.
+
+Rewrite the given resume line to be:
+- More professional
 - ATS optimized
-- Concise
-- Realistic (NO fake achievements)
+- Action-oriented
 
-Rules:
-- Do NOT fabricate metrics or experience.
-- Improve wording and clarity.
-- Strengthen impact.
-- Use strong action verbs.
-- Keep formatting clean.
-- Return ONLY the rewritten resume text.
-`
-        },
-        {
-          role: "user",
-          content: `
-RESUME:
-${resumeText}
+Keep it concise.
 
-${jobDescription ? `JOB DESCRIPTION:\n${jobDescription}` : ""}
+Return ONLY the improved sentence.
+Do NOT add explanations.
+                    `,
+                  },
+                  {
+                    role: "user",
+                    content: line,
+                  },
+                ],
+              }),
+            }
+          );
 
-If job description exists:
-- Align resume naturally to job requirements.
-- Improve keyword alignment without stuffing.
-`
+          const data = await response.json();
+
+          const suggestion =
+            data?.choices?.[0]?.message?.content?.trim() || line;
+
+          return {
+            original: line,
+            suggestion,
+          };
+        } catch (err) {
+          console.error("Line failed:", line);
+          return {
+            original: line,
+            suggestion: line,
+          };
         }
-      ]
-    });
+      })
+    );
 
-    return completion.choices[0].message.content;
-
+    return results;
   } catch (error) {
-    console.error("AI Rewrite failed:", error);
-    throw new Error("AI rewrite failed");
+    console.error("AI suggestion failed:", error);
+    return [];
   }
 };

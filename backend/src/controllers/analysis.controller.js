@@ -1,5 +1,5 @@
 import { generateAIAnalysis } from "../services/ai.service.js";
-
+import History from "../models/history.model.js";
 
 export const analyzeResume = async (req, res) => {
   try {
@@ -283,6 +283,24 @@ try {
 
 } catch (error) {
   console.error("AI generation failed:", error);
+}
+
+// ===============================
+// 💾 SAVE HISTORY
+// ===============================
+try {
+  if (req.user && req.user._id) {
+    await History.create({
+      userId: req.user._id,
+      resumeText: text,
+      score: finalScore,
+      jobMatchScore: jobMatchScore,
+      missingKeywords: missingKeywords,
+      improvedText: aiAnalysis?.improvedText || ""
+    });
+  }
+} catch (historyError) {
+  console.error("History save failed:", historyError);
 }
 
     return res.status(200).json({

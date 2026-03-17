@@ -1,31 +1,33 @@
-import { generateRewrite } from "../services/aiRewrite.service.js";
+import { generateLineSuggestions } from "../services/aiRewrite.service.js";
 
-export const rewriteResume = async (req, res) => {
+export const getLineSuggestions = async (req, res) => {
   try {
-    const { text, jobDescription } = req.body;
 
-    if (!text || text.trim().length < 50) {
+    if (!req.body) {
       return res.status(400).json({
-        message: "Valid resume text is required",
+        message: "Request body missing"
       });
     }
 
-    const hasValidJD =
-      jobDescription && jobDescription.trim().length > 50;
+    const { text } = req.body;
 
-    const improvedResume = await generateRewrite(
-      text,
-      hasValidJD ? jobDescription : null
-    );
+    if (!text || text.trim().length < 50) {
+      return res.status(400).json({
+        message: "Valid resume text (min 50 chars) is required"
+      });
+    }
+
+    const suggestions = await generateLineSuggestions(text);
 
     return res.status(200).json({
-      improvedResume,
+      suggestions: suggestions || []
     });
 
   } catch (error) {
-    console.error("Rewrite Error:", error);
+    console.error("Line suggestion error:", error);
+
     return res.status(500).json({
-      message: "Resume rewrite failed",
+      message: "Failed to get suggestions"
     });
   }
 };
