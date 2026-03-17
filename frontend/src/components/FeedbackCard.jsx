@@ -45,8 +45,7 @@ function FeedbackCard({ feedback }) {
     strengths,
     weaknesses,
     sectionAnalysis,
-    improvementSuggestions,
-    jobMatch
+    improvementSuggestions
   } = feedback
 
   const renderH3 = (title, className) => (
@@ -61,7 +60,7 @@ function FeedbackCard({ feedback }) {
   return (
     <div className="relative w-full flex flex-col rounded-2xl bg-white shadow-lg border border-gray-100 max-h-[75vh] overflow-hidden">
 
-      {/* Subtle Gradient Top Accent */}
+      {/* Gradient Accent */}
       <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-t-2xl" />
 
       {/* Header */}
@@ -135,39 +134,6 @@ function FeedbackCard({ feedback }) {
           </ul>
         </section>
 
-        {/* Job Match */}
-        {jobMatch && (
-          <section>
-            {renderH3("Job Alignment Analysis", "text-orange-600")}
-            <p className="mb-4 font-medium text-gray-800">
-              Match Score: {jobMatch.overallMatchScore}%
-              <span className="ml-2 text-sm text-gray-500">
-                ({jobMatch.reliabilityLevel})
-              </span>
-            </p>
-
-            <div className="mb-4">
-              <h4 className="font-heading text-base mb-2 text-gray-900">
-                Alignment Summary
-              </h4>
-              <p className="text-gray-600">{jobMatch.alignmentSummary}</p>
-            </div>
-
-            {jobMatch.missingRequirements?.length > 0 && (
-              <div>
-                <h4 className="font-heading text-base mb-2 text-rose-600">
-                  Missing Requirements
-                </h4>
-                <ul className="list-disc ml-5 space-y-2">
-                  {jobMatch.missingRequirements.map((req, index) => (
-                    <li key={index}>{req}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-        )}
-
       </div>
 
       {/* Neon Underline Styles */}
@@ -181,14 +147,14 @@ function FeedbackCard({ feedback }) {
           position: absolute;
           left: 0;
           bottom: -2px;
-          height: 1.2px; /* thinner underline */
+          height: 1.2px;
           width: 0;
           background: currentColor;
-          box-shadow: 0 0 2px currentColor; /* softer neon glow */
+          box-shadow: 0 0 2px currentColor;
           transition: width 0.6s ease;
         }
         .heading-neon.underline-visible::after {
-          width: 100%; /* only under text width */
+          width: 100%;
         }
       `}</style>
 

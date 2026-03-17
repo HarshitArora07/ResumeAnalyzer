@@ -1,28 +1,53 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom"
 import { LogOut } from "lucide-react"
+import { User } from "lucide-react"
 
 import InputSection from "../components/InputSection"
-import Dashboard from "../components/Dashboard"
 
 function ResumeApp() {
+  const navigate = useNavigate()
 
   const [file, setFile] = useState(null)
-  const [score, setScore] = useState(0)
-  const [targetScore, setTargetScore] = useState(0)
-
-  // ✅ FIX: feedback should be null (object later), not string
-  const [feedback, setFeedback] = useState(null)
-
-  const [improvedText, setImprovedText] = useState("")
   const [loading, setLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState("")
-  const [showConfetti, setShowConfetti] = useState(false)
-
   const [jobDescription, setJobDescription] = useState("")
-  const [jobMatchScore, setJobMatchScore] = useState(null)
-  const [missingKeywords, setMissingKeywords] = useState([])
-  const [sectionScores, setSectionScores] = useState(null)
-  const [analysisResult, setAnalysisResult] = useState(null)
+
+  const [showMenu, setShowMenu] = useState(false)
+  const menuRef = useRef()
+
+  // ✅ SAFE USER PARSE (FIXES CRASH)
+  const getUserFromStorage = () => {
+    try {
+      const data = localStorage.getItem("user")
+      if (!data || data === "undefined") return {}
+      return JSON.parse(data)
+    } catch {
+      return {}
+    }
+  }
+
+  const user = getUserFromStorage()
+
+  // ✅ PROTECT ROUTE (optional but important)
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      navigate("/", { replace: true })
+    }
+  }, [])
+
+  // ✅ Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   const loadingMessages = [
     "Uploading resume...",
@@ -36,14 +61,6 @@ function ResumeApp() {
       if (!file) return
 
       setLoading(true)
-      setScore(0)
-      setTargetScore(0)
-      setFeedback(null)
-      setImprovedText("")
-      setShowConfetti(false)
-      setJobMatchScore(null)
-      setMissingKeywords([])
-      setSectionScores(null)
 
       let stepIndex = 0
 
@@ -58,7 +75,6 @@ function ResumeApp() {
       const formData = new FormData()
       formData.append("resume", file)
 
-      // Upload resume
       const uploadRes = await fetch("http://localhost:5000/api/resume/upload", {
         method: "POST",
         body: formData
@@ -69,13 +85,25 @@ function ResumeApp() {
       }
 
       const resumeData = await uploadRes.json()
+      const extractedText = resumeData.extractedText || ""
 
-      // Analyze resume
+      localStorage.setItem("resumeText", extractedText)
+
+      const token = localStorage.getItem("token")
+
+      // ✅ HANDLE TOKEN MISSING
+      if (!token) {
+        throw new Error("Session expired. Please login again.")
+      }
+
       const analysisRes = await fetch("http://localhost:5000/api/analysis", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({
-          text: resumeData.extractedText,
+          text: extractedText,
           jobDescription: jobDescription.trim() || null
         })
       })
@@ -86,121 +114,106 @@ function ResumeApp() {
 
       const analysisData = await analysisRes.json()
 
-      // ✅ Always ensure object shape
-      const safeAI = analysisData?.aiAnalysis && typeof analysisData.aiAnalysis === "object"
-        ? analysisData.aiAnalysis
-        : null
-
-      setAnalysisResult(analysisData || null)
-      setSectionScores(analysisData?.sectionScores || null)
-      setTargetScore(analysisData?.score || 0)
-
-      // Job match (safe access)
-      if (safeAI?.jobMatch?.overallMatchScore !== undefined) {
-        setJobMatchScore(safeAI.jobMatch.overallMatchScore || 0)
-        setMissingKeywords(
-          safeAI.jobMatch.missingRequirements || []
-        )
-      }
-
-      setFeedback(safeAI)
-      setImprovedText(analysisData?.improvedText || "")
+      localStorage.setItem(
+        "analysisResult",
+        JSON.stringify(analysisData)
+      )
 
       clearInterval(stepInterval)
       setLoading(false)
 
+      navigate("/dashboard")
+
     } catch (err) {
       console.error(err)
       setLoading(false)
+
+      // ✅ AUTO LOGOUT IF TOKEN ISSUE
+      if (err.message.includes("Session expired")) {
+        localStorage.clear()
+        navigate("/")
+      }
+
       alert(err.message || "Something went wrong")
     }
   }
 
-  // Animated score
-  useEffect(() => {
-    if (!targetScore) return
-
-    let current = 0
-
-    const interval = setInterval(() => {
-      current += 2
-      if (current >= targetScore) {
-        current = targetScore
-        clearInterval(interval)
-      }
-      setScore(current)
-    }, 20)
-
-    return () => clearInterval(interval)
-  }, [targetScore])
-
-  // Confetti
-  useEffect(() => {
-    if (score > 80 && !loading) {
-      setShowConfetti(true)
-      setTimeout(() => setShowConfetti(false), 3000)
-    }
-  }, [score, loading])
-
   const handleLogout = () => {
     localStorage.removeItem("token")
-    window.location.reload()
+    localStorage.removeItem("user")
+    navigate("/", { replace: true })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50">
 
-      {showConfetti && (
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full animate-confetti"
-              style={{
-                left: `${Math.random() * 100}%`,
-                backgroundColor: ["#ef4444", "#f59e0b", "#10b981", "#3b82f6"][
-                  Math.floor(Math.random() * 4)
-                ],
-                animationDuration: `${2 + Math.random() * 2}s`
-              }}
-            />
-          ))}
-        </div>
-      )}
+      {/* Header */}
+      <header className="w-full bg-white border-b px-6 py-4 flex justify-between items-center">
 
-      <header className="w-full bg-white border-b px-6 py-4 flex justify-between">
-        <h1 className="text-xl font-bold">
+        <h1
+          className="text-xl font-bold cursor-pointer"
+          onClick={() => navigate("/")}
+        >
           Resume<span className="text-blue-600">Analyzer</span>
         </h1>
-        <div className="flex items-center"><button onClick={handleLogout} className="text-red-500">
-          <LogOut size={18} />
-        </button>
-        <h2 className="text-red-500 ml-2">Logout</h2>
+
+        {/* Profile Dropdown */}
+        <div ref={menuRef} className="relative">
+
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-lg hover:bg-gray-200 transition"
+          >
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shadow-sm">
+  <User className="text-white w-4 h-4" />
+</div>
+
+            {/* Name */}
+            <span className="font-medium">
+              {user?.name || "User"}
+            </span>
+          </button>
+
+          {/* Dropdown */}
+          {showMenu && (
+            <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-lg border z-50 overflow-hidden animate-fadeIn">
+
+              <button
+                onClick={() => {
+                  navigate("/history")
+                  setShowMenu(false)
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-blue-500"
+              >
+                📜 History
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2 text-red-500"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+
+            </div>
+          )}
+
         </div>
+
       </header>
 
-      {!analysisResult ? (
-        <InputSection
-          file={file}
-          setFile={setFile}
-          jobDescription={jobDescription}
-          setJobDescription={setJobDescription}
-          analyzeResume={analyzeResume}
-          loading={loading}
-        />
-      ) : (
-        <Dashboard
-          score={score}
-          loading={loading}
-          loadingStep={loadingStep}
-          feedback={feedback}
-          improvedText={improvedText}
-          jobMatchScore={jobMatchScore}
-          missingKeywords={missingKeywords}
-          analysisResult={analysisResult}
-          sectionScores={sectionScores}
-        />
-      )}
+      {/* Upload Section */}
+      <InputSection
+        file={file}
+        setFile={setFile}
+        jobDescription={jobDescription}
+        setJobDescription={setJobDescription}
+        analyzeResume={analyzeResume}
+        loading={loading}
+        loadingStep={loadingStep}
+      />
 
     </div>
   )

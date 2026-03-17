@@ -8,6 +8,10 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import GoogleSuccess from "./components/GoogleSuccess";
+import RewriteEditor from "./pages/RewriteEditor";
+import DashboardPage from "./pages/DashboardPage"
+import History from "./pages/History"
 
 function App() {
   const location = useLocation()
@@ -26,12 +30,26 @@ function App() {
       {shouldShowNavbar && <Navbar />}
 
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/app" element={<ResumeApp />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+  <Route path="/" element={<Landing />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/register" element={<Register />} />
+
+  {/* Upload Page */}
+  <Route path="/app" element={<ResumeApp />} />
+
+  {/* ATS Results */}
+  <Route path="/dashboard" element={<DashboardPage />} />
+
+  {/* AI Rewrite */}
+  
+  <Route path="/editor" element={<RewriteEditor />} />
+  {/* History */}
+  <Route path="/history" element={<History />} />
+
+  {/* Google OAuth Callback */}
+  <Route path="/google-success" element={<GoogleSuccess />} />
+  <Route path="*" element={<NotFound />} />
+</Routes>
     </>
   )
 }

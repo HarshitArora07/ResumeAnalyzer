@@ -228,7 +228,7 @@ function InputSection({
               >
                 <div className="flex items-center gap-4 mb-3">
                   <div className={`w-14 h-14 flex items-center justify-center rounded-full 
-                                  bg-linear-to-tr from-${f.color}-100 to-${f.color}-300 
+                                  bg-linear-to-tr from-blue-300 to-pink-300 
                                   text-${f.color}-700 shadow-inner shrink-0`}>
                     {f.icon}
                   </div>
@@ -290,9 +290,12 @@ function InputSection({
             <p className="text-gray-600 mb-6 max-w-xl mx-auto font-body">
               Upload your resume now and see how our AI insights can improve your job prospects instantly.
             </p>
-            <button className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
-              Analyze My Resume
-            </button>
+            <button
+  className="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+>
+  Analyze My Resume
+</button>
           </div>
 
         </div>
