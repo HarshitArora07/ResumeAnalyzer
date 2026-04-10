@@ -1,30 +1,28 @@
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 
 function GoogleSuccess() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(window.location.search);
 
     const token = params.get("token");
     const name = params.get("name");
     const email = params.get("email");
 
     if (token && name) {
-      const user = { name, email };
-
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user)); // ✅ FIX
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ name, email })
+      );
 
-      navigate("/app");
+      // ✅ safer for OAuth redirect flow
+      window.location.replace("/app");
     } else {
-      navigate("/login");
+      window.location.replace("/login");
     }
-  }, [location, navigate]);
+  }, []);
 
-  return <p>Logging in...</p>;
+  return <p>Logging you in...</p>;
 }
 
 export default GoogleSuccess;
