@@ -30,25 +30,50 @@ function Register() {
     }
 
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password
-        }
-      )
+  const API = import.meta.env.VITE_API_BASE;
 
-      // Store token
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data))
-
-      // Redirect to main app
-      navigate("/app")
-    } catch (err) {
-      setError(err.response?.data?.message || "Registration failed")
+  const { data } = await axios.post(
+    `${API}/api/auth/register`,
+    {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password
     }
+  );
+
+  console.log("REGISTER RESPONSE:", data);
+
+  // Normalize user data
+  let userData = {};
+
+  if (data.user) {
+    userData = data.user;
+  } else {
+    userData = {
+      name: data.name,
+      email: data.email
+    };
   }
+
+  // Validate response
+  if (!data.token || !userData?.name) {
+    throw new Error("User data missing from server");
+  }
+
+  // Store data
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(userData));
+
+  // Redirect
+  navigate("/app");
+
+} catch (err) {
+  setError(
+    err.response?.data?.message ||
+    err.message ||
+    "Registration failed"
+  );
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -154,9 +179,9 @@ function Register() {
           {/* Google Register Button */}
           <button
             type="button"
-            onClick={() =>
-              (window.location.href = "http://localhost:5000/api/auth/google")
-            }
+            onClick={() => {
+              window.location.href = `${import.meta.env.VITE_API_BASE}/api/auth/google`;
+            }}
             className="w-full bg-white border border-gray-300 py-3 rounded-lg hover:bg-gray-100 transition font-semibold flex items-center justify-center gap-2"
           >
             <img

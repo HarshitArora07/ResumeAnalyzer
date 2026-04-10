@@ -24,46 +24,46 @@ function Login() {
     setError("")
 
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData
-      )
+  const API = import.meta.env.VITE_API_BASE;
 
-      // ✅ DEBUG (check this in console)
-      console.log("LOGIN RESPONSE:", data)
+  const { data } = await axios.post(
+    `${API}/api/auth/login`,
+    formData
+  );
 
-      // ✅ FIX: handle multiple backend formats
-      let userData = {}
+  console.log("LOGIN RESPONSE:", data);
 
-      if (data.user) {
-        userData = data.user
-      } else {
-        // fallback if backend sends flat object
-        userData = {
-          name: data.name,
-          email: data.email
-        }
-      }
+  // Normalize user data
+  let userData = {};
 
-      // ❗ Ensure name exists
-      if (!data.token || !userData?.name) {
-        throw new Error("User data missing from server")
-      }
+  if (data.user) {
+    userData = data.user;
+  } else {
+    userData = {
+      name: data.name,
+      email: data.email
+    };
+  }
 
-      // ✅ Store clean data
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(userData))
+  // Validate response
+  if (!data.token || !userData?.name) {
+    throw new Error("User data missing from server");
+  }
 
-      // Redirect
-      navigate("/app")
+  // Store data
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(userData));
 
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Login failed"
-      )
-    }
+  // Redirect
+  navigate("/app");
+
+} catch (err) {
+  setError(
+    err.response?.data?.message ||
+    err.message ||
+    "Login failed"
+  );
+}
   }
 
   return (
@@ -154,10 +154,9 @@ function Login() {
           {/* Google Login Button */}
           <button
             type="button"
-            onClick={() =>
-              window.location.href =
-                "http://localhost:5000/api/auth/google"
-            }
+            onClick={() => {
+              window.location.href = `${import.meta.env.VITE_API_BASE}/api/auth/google`;
+            }}
             className="w-full bg-white border border-gray-300 py-3 rounded-lg hover:bg-gray-100 transition font-semibold flex items-center justify-center gap-2"
           >
             <img
