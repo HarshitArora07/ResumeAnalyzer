@@ -1,6 +1,6 @@
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
 export const env = {
   PORT: process.env.PORT || 5000,
@@ -9,9 +9,14 @@ export const env = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
   GROQ_API_KEY: process.env.GROQ_API_KEY,
 
-  // ✅ Add these for Google OAuth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-  SERVER_URL: process.env.SERVER_URL,   // your backend URL
-  CLIENT_URL: process.env.CLIENT_URL    // your frontend URL
-}
+  SERVER_URL: process.env.SERVER_URL,
+  CLIENT_URL: process.env.CLIENT_URL
+};
+
+// 🔥 Debug check (very useful on Render)
+console.log("ENV CHECK:", {
+  SERVER_URL: env.SERVER_URL,
+  CLIENT_URL: env.CLIENT_URL
+});

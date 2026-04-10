@@ -12,29 +12,34 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ googleId: profile.id })
+        const email = profile.emails?.[0]?.value;
+
+        if (!email) {
+          return done(new Error("No email found from Google"), null);
+        }
+
+        let user = await User.findOne({ googleId: profile.id });
 
         if (!user) {
-          user = await User.findOne({ email: profile.emails[0].value })
+          user = await User.findOne({ email });
+
           if (user) {
-            // Link Google account to existing user
-            user.googleId = profile.id
-            await user.save()
+            user.googleId = profile.id;
+            await user.save();
           } else {
-            // Create new user
             user = await User.create({
               name: profile.displayName,
-              email: profile.emails[0].value,
+              email,
               googleId: profile.id,
               password: Math.random().toString(36).slice(-8)
-            })
+            });
           }
         }
 
-        done(null, user)
+        done(null, user);
       } catch (err) {
-        done(err, null)
+        done(err, null);
       }
     }
   )
-)
+);
