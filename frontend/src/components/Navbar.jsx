@@ -13,6 +13,16 @@
 
             {/* Desktop Buttons */}
             <div className="hidden md:flex items-center gap-4">
+                <button
+                  onClick={() => {
+                    localStorage.setItem("token", "guest_token")
+                    localStorage.setItem("user", JSON.stringify({ name: "Guest Mode" }))
+                    window.location.href = "/app"
+                  }}
+                  className="px-4 py-2 text-gray-700 font-medium border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition cursor-pointer shadow-sm"
+                >
+                  Guest Mode
+                </button>
                 <Link
                 to="/login"
                 className="text-gray-700 hover:text-blue-600 transition"

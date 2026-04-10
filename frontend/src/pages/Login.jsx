@@ -123,13 +123,26 @@ function Login() {
             />
           </div>
 
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
-          >
-            Login
-          </button>
+          {/* Buttons */}
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem("token", "guest_token")
+                localStorage.setItem("user", JSON.stringify({ name: "Guest Mode" }))
+                navigate("/app")
+              }}
+              className="flex-1 bg-white text-gray-700 border-2 border-gray-300 py-3 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition font-semibold shadow-sm"
+            >
+              Guest Mode
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="flex items-center my-4">
