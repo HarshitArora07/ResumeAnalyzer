@@ -16,6 +16,7 @@ function ResumeApp() {
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef()
 
+
   // ✅ SAFE USER PARSE (FIXES CRASH)
   const getUserFromStorage = () => {
     try {
@@ -58,6 +59,15 @@ function ResumeApp() {
 
   const analyzeResume = async () => {
     try {
+
+      const API = import.meta.env.VITE_API_BASE;
+
+    // ✅ ADD THIS HERE
+    if (!API) {
+      alert("API not configured");
+      return;
+    }
+
       if (!file) return
 
       setLoading(true)
@@ -75,7 +85,7 @@ function ResumeApp() {
       const formData = new FormData()
       formData.append("resume", file)
 
-      const uploadRes = await fetch("http://localhost:5000/api/resume/upload", {
+      const uploadRes = await fetch(`${API}/api/resume/upload`, {
         method: "POST",
         body: formData
       })
@@ -96,7 +106,7 @@ function ResumeApp() {
         throw new Error("Session expired. Please login again.")
       }
 
-      const analysisRes = await fetch("http://localhost:5000/api/analysis", {
+      const analysisRes = await fetch(`${API}/api/analysis`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
