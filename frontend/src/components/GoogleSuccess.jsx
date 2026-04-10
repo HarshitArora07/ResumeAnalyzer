@@ -1,6 +1,9 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function GoogleSuccess() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -15,12 +18,12 @@ function GoogleSuccess() {
         JSON.stringify({ name, email })
       );
 
-      // ✅ safer for OAuth redirect flow
-      window.location.replace("/app");
+      // ✅ Use navigate for SPA-friendly redirection
+      navigate("/app", { replace: true });
     } else {
-      window.location.replace("/login");
+      navigate("/login", { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   return <p>Logging you in...</p>;
 }
