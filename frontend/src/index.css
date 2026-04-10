@@ -1,0 +1,120 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradientSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.5s ease forwards;
+}
+
+.bar-green {
+  background: linear-gradient(
+    90deg,
+    rgba(34,197,94,0.3) 25%,
+    rgba(34,197,94,0.6) 50%,
+    rgba(34,197,94,0.3) 75%
+  );
+  background-size: 200% 100%;
+  animation: gradientSweep 3s linear infinite;
+}
+
+.bar-red {
+  background: linear-gradient(
+    90deg,
+    rgba(239,68,68,0.3) 25%,
+    rgba(239,68,68,0.6) 50%,
+    rgba(239,68,68,0.3) 75%
+  );
+  background-size: 200% 100%;
+  animation: gradientSweep 3s linear infinite;
+}
+
+@keyframes fillBar {
+  from { width: 0%; }
+  to { width: 82%; }
+}
+
+
+
+.section-bar-fill {
+  animation: fillWidth 1.2s ease forwards;
+}
+/* LIGHT SWEEP EFFECT */
+.bar-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: sweep 0.8s ease forwards;
+}
+
+@keyframes sweep {
+  from {
+    left: -50%;
+  }
+  to {
+    left: 120%;
+  }
+}
